@@ -74,14 +74,14 @@ public class TemplateInitializer implements CommandLineRunner {
     }
 
     private void insertFieldIfNotExists(Integer templateId, String fieldName, String dataType, String mappingExpr, Boolean required) {
-        List<TemplateField> existingFields = fieldRepository.findByTemplateId(templateId);
+        List<TemplateField> existingFields = fieldRepository.findByTemplate_TemplateId(templateId);
         for (TemplateField field : existingFields) {
             if (fieldName.equals(field.getFieldName())) {
                 return; // already exists
             }
         }
         TemplateField newField = new TemplateField();
-        newField.setTemplateId(templateId);
+        newField.setTemplate(templateRepository.getReferenceById(templateId));
         newField.setFieldName(fieldName);
         newField.setDataType(dataType);
         newField.setMappingExpression(mappingExpr);

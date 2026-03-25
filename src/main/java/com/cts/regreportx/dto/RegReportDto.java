@@ -1,7 +1,12 @@
 package com.cts.regreportx.dto;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
 public class RegReportDto {
 
     private Integer reportId;
@@ -13,47 +18,4 @@ public class RegReportDto {
     private LocalDateTime generatedDate;
 
     private String status;
-
-    public RegReportDto() {
-    }
-
-    public Integer getReportId() {
-        return reportId;
-    }
-
-    public void setReportId(Integer reportId) {
-        this.reportId = reportId;
-    }
-
-    public Integer getTemplateId() {
-        return templateId;
-    }
-
-    public void setTemplateId(Integer templateId) {
-        this.templateId = templateId;
-    }
-
-    public String getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(String period) {
-        this.period = period;
-    }
-
-    public LocalDateTime getGeneratedDate() {
-        return generatedDate;
-    }
-
-    public void setGeneratedDate(LocalDateTime generatedDate) {
-        this.generatedDate = generatedDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

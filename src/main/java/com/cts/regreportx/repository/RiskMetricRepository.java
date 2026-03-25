@@ -12,10 +12,10 @@ public interface RiskMetricRepository extends JpaRepository<RiskMetric, Integer>
     
     @Transactional
     @Modifying
-    @Query("DELETE FROM RiskMetric r WHERE r.reportId = :reportId")
-    void deleteByReportId(Integer reportId);
+    @Query("DELETE FROM RiskMetric r WHERE r.report.reportId = :reportId")
+    void deleteByReport_ReportId(Integer reportId);
     
-    java.util.List<RiskMetric> findByReportId(Integer reportId);
+    java.util.List<RiskMetric> findByReport_ReportId(Integer reportId);
     
-    java.util.Optional<RiskMetric> findByReportIdAndMetricName(Integer reportId, String metricName);
+    java.util.Optional<RiskMetric> findByReport_ReportIdAndMetricName(Integer reportId, String metricName);
 }

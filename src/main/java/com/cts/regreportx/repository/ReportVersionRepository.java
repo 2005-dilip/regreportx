@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ReportVersionRepository extends JpaRepository<ReportVersion, Integer> {
-    Optional<ReportVersion> findTopByReportIdOrderByVersionNumberDesc(Integer reportId);
+    Optional<ReportVersion> findTopByReport_ReportIdOrderByVersionNumberDesc(Integer reportId);
 }

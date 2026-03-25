@@ -47,7 +47,7 @@ public class ValidationService {
 
         for (RawDataBatch batch : batches) {
             List<RawRecord> records = rawRecordService.getRecordsByBatch(batch.getBatchId());
-            Integer sourceId = batch.getSourceId();
+            Integer sourceId = batch.getSource() != null ? batch.getSource().getSourceId() : null;
 
             try {
                 for (RawRecord record : records) {
@@ -139,8 +139,8 @@ public class ValidationService {
     private DataQualityIssue createIssue(Integer batchId, Integer ruleId, String recordId, String message,
             String severity) {
         DataQualityIssue issue = new DataQualityIssue();
-        issue.setBatchId(batchId);
-        issue.setRuleId(ruleId);
+        issue.setBatch(batchRepository.getReferenceById(batchId));
+        issue.setRule(validationRuleRepository.getReferenceById(ruleId));
         issue.setRecordId(recordId);
         issue.setMessage(message);
         issue.setSeverity(severity);

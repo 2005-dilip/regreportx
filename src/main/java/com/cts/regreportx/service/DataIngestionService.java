@@ -65,7 +65,7 @@ public class DataIngestionService {
             }
 
             RawDataBatch batch = new RawDataBatch();
-            batch.setSourceId(source.getSourceId());
+            batch.setSource(source);
             batch.setIngestedDate(LocalDateTime.now());
             batch.setRowCount(rowCount);
             batch.setStatus("Ingested");

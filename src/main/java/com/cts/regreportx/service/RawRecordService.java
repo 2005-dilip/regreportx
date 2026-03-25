@@ -38,7 +38,7 @@ public class RawRecordService {
         }
 
         RawDataBatch batch = batchOpt.get();
-        Integer sourceId = batch.getSourceId();
+        Integer sourceId = batch.getSource() != null ? batch.getSource().getSourceId() : null;
         int recordsInserted = 0;
 
         try {
@@ -78,7 +78,7 @@ public class RawRecordService {
 
     private void insertRawRecord(Integer batchId, Object sourceEntity) throws Exception {
         RawRecord record = new RawRecord();
-        record.setBatchId(batchId);
+        record.setBatch(batchRepository.getReferenceById(batchId));
         record.setRecordDate(LocalDateTime.now());
         record.setPayloadJson(objectMapper.writeValueAsString(sourceEntity));
         rawRecordRepository.save(record);
@@ -87,6 +87,6 @@ public class RawRecordService {
     public List<RawRecord> getRecordsByBatch(Integer batchId) {
         // Find all records matching this batch. We need a custom query method in repo.
         // Assuming we will add findByBatchId to repository.
-        return rawRecordRepository.findByBatchId(batchId);
+        return rawRecordRepository.findByBatch_BatchId(batchId);
     }
 }

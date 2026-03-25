@@ -1,5 +1,8 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +12,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "DataSource")
+@Data
+@NoArgsConstructor
 public class DataSource {
 
     @Id
@@ -27,47 +32,4 @@ public class DataSource {
 
     @Column(name = "Status")
     private String status;
-
-    public DataSource() {
-    }
-
-    public Integer getSourceId() {
-        return sourceId;
-    }
-
-    public void setSourceId(Integer sourceId) {
-        this.sourceId = sourceId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSourceType() {
-        return sourceType;
-    }
-
-    public void setSourceType(String sourceType) {
-        this.sourceType = sourceType;
-    }
-
-    public String getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(String schedule) {
-        this.schedule = schedule;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

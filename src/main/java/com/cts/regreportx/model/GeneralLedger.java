@@ -1,5 +1,8 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,6 +12,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "general_ledger")
+@Data
+@NoArgsConstructor
 public class GeneralLedger {
 
     @Id
@@ -35,71 +40,4 @@ public class GeneralLedger {
 
     @Column(name = "\"TransactionDate\"")
     private LocalDate transactionDate;
-
-    public GeneralLedger() {
-    }
-
-    public String getGlId() {
-        return glId;
-    }
-
-    public void setGlId(String glId) {
-        this.glId = glId;
-    }
-
-    public Long getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(Long accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    public String getBranchId() {
-        return branchId;
-    }
-
-    public void setBranchId(String branchId) {
-        this.branchId = branchId;
-    }
-
-    public String getAccountType() {
-        return accountType;
-    }
-
-    public void setAccountType(String accountType) {
-        this.accountType = accountType;
-    }
-
-    public BigDecimal getDebit() {
-        return debit;
-    }
-
-    public void setDebit(BigDecimal debit) {
-        this.debit = debit;
-    }
-
-    public BigDecimal getCredit() {
-        return credit;
-    }
-
-    public void setCredit(BigDecimal credit) {
-        this.credit = credit;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public LocalDate getTransactionDate() {
-        return transactionDate;
-    }
-
-    public void setTransactionDate(LocalDate transactionDate) {
-        this.transactionDate = transactionDate;
-    }
 }

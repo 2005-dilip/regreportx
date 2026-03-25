@@ -1,15 +1,23 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "AuditLog")
+@Data
+@NoArgsConstructor
 public class AuditLog {
 
     @Id
@@ -17,8 +25,9 @@ public class AuditLog {
     @Column(name = "AuditID")
     private Integer auditId;
 
-    @Column(name = "UserID")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserID")
+    private User user;
 
     @Column(name = "Action")
     private String action;
@@ -31,55 +40,4 @@ public class AuditLog {
 
     @Column(name = "Metadata", columnDefinition = "TEXT")
     private String metadata;
-
-    public AuditLog() {
-    }
-
-    public Integer getAuditId() {
-        return auditId;
-    }
-
-    public void setAuditId(Integer auditId) {
-        this.auditId = auditId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getResource() {
-        return resource;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
-    }
 }

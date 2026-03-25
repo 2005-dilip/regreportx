@@ -1,15 +1,23 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "RegReport")
+@Data
+@NoArgsConstructor
 public class RegReport {
 
     @Id
@@ -17,8 +25,9 @@ public class RegReport {
     @Column(name = "ReportID")
     private Integer reportId;
 
-    @Column(name = "TemplateID")
-    private Integer templateId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TemplateID")
+    private RegTemplate template;
 
     @Column(name = "Period")
     private String period;
@@ -28,47 +37,4 @@ public class RegReport {
 
     @Column(name = "Status")
     private String status;
-
-    public RegReport() {
-    }
-
-    public Integer getReportId() {
-        return reportId;
-    }
-
-    public void setReportId(Integer reportId) {
-        this.reportId = reportId;
-    }
-
-    public Integer getTemplateId() {
-        return templateId;
-    }
-
-    public void setTemplateId(Integer templateId) {
-        this.templateId = templateId;
-    }
-
-    public String getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(String period) {
-        this.period = period;
-    }
-
-    public LocalDateTime getGeneratedDate() {
-        return generatedDate;
-    }
-
-    public void setGeneratedDate(LocalDateTime generatedDate) {
-        this.generatedDate = generatedDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

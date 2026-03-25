@@ -1,11 +1,11 @@
 package com.cts.regreportx.dto;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+@Data
+@NoArgsConstructor
 public class DataQualityResolveRequest {
     private String correctedValue;
     private String justification;
-
-    public String getCorrectedValue() { return correctedValue; }
-    public void setCorrectedValue(String correctedValue) { this.correctedValue = correctedValue; }
-    public String getJustification() { return justification; }
-    public void setJustification(String justification) { this.justification = justification; }
 }

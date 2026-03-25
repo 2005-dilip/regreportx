@@ -11,6 +11,7 @@ import com.cts.regreportx.repository.UserRepository;
 import com.cts.regreportx.repository.TemplateFieldRepository;
 import com.cts.regreportx.repository.RiskMetricRepository;
 import com.cts.regreportx.repository.ReportVersionRepository;
+import com.cts.regreportx.repository.RegTemplateRepository;
 import com.cts.regreportx.model.CorrectionLog;
 import com.cts.regreportx.model.User;
 import com.cts.regreportx.model.TemplateField;
@@ -45,6 +46,7 @@ public class ReportingService {
     private final TemplateFieldRepository templateFieldRepository;
     private final RiskMetricRepository riskMetricRepository;
     private final ReportVersionRepository reportVersionRepository;
+    private final RegTemplateRepository regTemplateRepository;
 
     @Autowired
     public ReportingService(RegReportRepository reportRepository,
@@ -56,7 +58,8 @@ public class ReportingService {
             UserRepository userRepository,
             TemplateFieldRepository templateFieldRepository,
             RiskMetricRepository riskMetricRepository,
-            ReportVersionRepository reportVersionRepository) {
+            ReportVersionRepository reportVersionRepository,
+            RegTemplateRepository regTemplateRepository) {
         this.reportRepository = reportRepository;
         this.workflowRepository = workflowRepository;
         this.exceptionRecordRepository = exceptionRecordRepository;
@@ -67,12 +70,13 @@ public class ReportingService {
         this.templateFieldRepository = templateFieldRepository;
         this.riskMetricRepository = riskMetricRepository;
         this.reportVersionRepository = reportVersionRepository;
+        this.regTemplateRepository = regTemplateRepository;
     }
 
     public RegReport generateReport(Integer templateId, String period) {
         // 1. Create Report
         RegReport report = new RegReport();
-        report.setTemplateId(templateId);
+        report.setTemplate(regTemplateRepository.getReferenceById(templateId));
         report.setPeriod(period);
         report.setGeneratedDate(LocalDateTime.now());
         report.setStatus("DRAFT");
@@ -80,16 +84,16 @@ public class ReportingService {
 
         // 2. Track Workflow Draft Stage
         FilingWorkflow workflow = new FilingWorkflow();
-        workflow.setReportId(report.getReportId());
+        workflow.setReport(report);
         workflow.setStepName("DRAFT");
-        workflow.setActorId(1); // System user
+        workflow.setActor(userRepository.getReferenceById(1L)); // System user
         workflow.setStepDate(LocalDateTime.now());
         workflow.setStatus("COMPLETED");
         workflowRepository.save(workflow);
 
         // 3. Create ReportVersion mapping
         ReportVersion version = new ReportVersion();
-        version.setReportId(report.getReportId());
+        version.setReport(report);
         version.setVersionNumber(1);
         version.setStatus("DRAFT");
         version.setCreatedDate(LocalDateTime.now());
@@ -134,15 +138,15 @@ public class ReportingService {
         report = reportRepository.save(report);
         
         FilingWorkflow workflow = new FilingWorkflow();
-        workflow.setReportId(reportId);
+        workflow.setReport(report);
         workflow.setStepName(nextStatus);
-        workflow.setActorId(actorId);
+        workflow.setActor(userRepository.getReferenceById(actorId.longValue()));
         workflow.setStepDate(LocalDateTime.now());
         workflow.setStatus("COMPLETED");
         workflowRepository.save(workflow);
         
         // Update corresponding ReportVersion status
-        reportVersionRepository.findTopByReportIdOrderByVersionNumberDesc(reportId)
+        reportVersionRepository.findTopByReport_ReportIdOrderByVersionNumberDesc(reportId)
                 .ifPresent(version -> {
                     version.setStatus(nextStatus);
                     reportVersionRepository.save(version);
@@ -183,9 +187,9 @@ public class ReportingService {
         
         java.util.concurrent.atomic.AtomicReference<String> oldMetricValue = new java.util.concurrent.atomic.AtomicReference<>(exception.getIssue());
 
-        if (exception.getFieldId() != null && exception.getReportId() != null) {
-            templateFieldRepository.findById(exception.getFieldId()).ifPresent(field -> {
-                riskMetricRepository.findByReportIdAndMetricName(exception.getReportId(), field.getFieldName())
+        if (exception.getTemplateField() != null && exception.getReport() != null) {
+            TemplateField field = exception.getTemplateField();
+            riskMetricRepository.findByReport_ReportIdAndMetricName(exception.getReport().getReportId(), field.getFieldName())
                         .ifPresent(metric -> {
                             try {
                                 if (metric.getMetricValue() != null) {
@@ -195,11 +199,10 @@ public class ReportingService {
                                 riskMetricRepository.save(metric);
                             } catch (Exception ignored) {}
                         });
-            });
         }
 
         CorrectionLog log = new CorrectionLog();
-        log.setExceptionId(exception.getExceptionId());
+        log.setExceptionRecord(exception);
         log.setOldValue(oldMetricValue.get());
         log.setNewValue("Value: " + request.getCorrectedValue() + " | Reason: " + request.getJustification());
         log.setCorrectedDate(LocalDateTime.now());
@@ -208,7 +211,7 @@ public class ReportingService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
                 Optional<User> userOpt = userRepository.findByUsername(auth.getName());
-                userOpt.ifPresent(user -> log.setCorrectedBy(user.getId().intValue()));
+                userOpt.ifPresent(user -> log.setCorrectedByUser(user));
             }
         } catch (Exception e) {}
 
@@ -222,7 +225,7 @@ public class ReportingService {
     @Transactional
     public List<ExceptionRecord> generateExceptionsForReport(Integer reportId) {
         List<ExceptionRecord> generated = new java.util.ArrayList<>();
-        List<RiskMetric> metrics = riskMetricRepository.findByReportId(reportId);
+        List<RiskMetric> metrics = riskMetricRepository.findByReport_ReportId(reportId);
         if(metrics == null || metrics.isEmpty()) return generated;
 
         for (RiskMetric metric : metrics) {
@@ -258,8 +261,10 @@ public class ReportingService {
                 }
 
                 ExceptionRecord ex = new ExceptionRecord();
-                ex.setReportId(reportId);
-                ex.setFieldId(fieldId);
+                ex.setReport(reportRepository.getReferenceById(reportId));
+                if (fieldId != null) {
+                    ex.setTemplateField(templateFieldRepository.getReferenceById(fieldId));
+                }
                 ex.setIssue(issueMsg);
                 ex.setSeverity(severity);
                 ex.setStatus("Open");

@@ -1,14 +1,22 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "ExceptionRecord")
+@Data
+@NoArgsConstructor
 public class ExceptionRecord {
 
     @Id
@@ -16,11 +24,13 @@ public class ExceptionRecord {
     @Column(name = "ExceptionID")
     private Integer exceptionId;
 
-    @Column(name = "ReportID")
-    private Integer reportId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ReportID")
+    private RegReport report;
 
-    @Column(name = "FieldID")
-    private Integer fieldId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "FieldID")
+    private TemplateField templateField;
 
     @Column(name = "Issue")
     private String issue;
@@ -28,68 +38,10 @@ public class ExceptionRecord {
     @Column(name = "Severity")
     private String severity;
 
-    @Column(name = "AssignedTo")
-    private Integer assignedTo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AssignedTo")
+    private User assignedUser;
 
     @Column(name = "Status")
     private String status;
-
-    public ExceptionRecord() {
-    }
-
-    public Integer getExceptionId() {
-        return exceptionId;
-    }
-
-    public void setExceptionId(Integer exceptionId) {
-        this.exceptionId = exceptionId;
-    }
-
-    public Integer getReportId() {
-        return reportId;
-    }
-
-    public void setReportId(Integer reportId) {
-        this.reportId = reportId;
-    }
-
-    public Integer getFieldId() {
-        return fieldId;
-    }
-
-    public void setFieldId(Integer fieldId) {
-        this.fieldId = fieldId;
-    }
-
-    public String getIssue() {
-        return issue;
-    }
-
-    public void setIssue(String issue) {
-        this.issue = issue;
-    }
-
-    public String getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(String severity) {
-        this.severity = severity;
-    }
-
-    public Integer getAssignedTo() {
-        return assignedTo;
-    }
-
-    public void setAssignedTo(Integer assignedTo) {
-        this.assignedTo = assignedTo;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

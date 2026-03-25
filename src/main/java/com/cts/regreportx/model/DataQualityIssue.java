@@ -1,15 +1,23 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "DataQualityIssue")
+@Data
+@NoArgsConstructor
 public class DataQualityIssue {
 
     @Id
@@ -17,11 +25,13 @@ public class DataQualityIssue {
     @Column(name = "IssueID")
     private Integer issueId;
 
-    @Column(name = "BatchID")
-    private Integer batchId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BatchID")
+    private RawDataBatch batch;
 
-    @Column(name = "RuleID")
-    private Integer ruleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RuleID")
+    private ValidationRule rule;
 
     @Column(name = "RecordID")
     private String recordId;
@@ -37,71 +47,4 @@ public class DataQualityIssue {
 
     @Column(name = "Status")
     private String status;
-
-    public DataQualityIssue() {
-    }
-
-    public Integer getIssueId() {
-        return issueId;
-    }
-
-    public void setIssueId(Integer issueId) {
-        this.issueId = issueId;
-    }
-
-    public Integer getBatchId() {
-        return batchId;
-    }
-
-    public void setBatchId(Integer batchId) {
-        this.batchId = batchId;
-    }
-
-    public Integer getRuleId() {
-        return ruleId;
-    }
-
-    public void setRuleId(Integer ruleId) {
-        this.ruleId = ruleId;
-    }
-
-    public String getRecordId() {
-        return recordId;
-    }
-
-    public void setRecordId(String recordId) {
-        this.recordId = recordId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(String severity) {
-        this.severity = severity;
-    }
-
-    public LocalDateTime getLoggedDate() {
-        return loggedDate;
-    }
-
-    public void setLoggedDate(LocalDateTime loggedDate) {
-        this.loggedDate = loggedDate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

@@ -1,7 +1,12 @@
 package com.cts.regreportx.dto;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
 public class AuditLogDto {
 
     private Integer auditId;
@@ -15,55 +20,4 @@ public class AuditLogDto {
     private LocalDateTime timestamp;
 
     private String metadata;
-
-    public AuditLogDto() {
-    }
-
-    public Integer getAuditId() {
-        return auditId;
-    }
-
-    public void setAuditId(Integer auditId) {
-        this.auditId = auditId;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getResource() {
-        return resource;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
-    }
 }

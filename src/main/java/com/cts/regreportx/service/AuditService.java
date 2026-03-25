@@ -37,10 +37,10 @@ public class AuditService {
                 String username = auth.getName();
                 Optional<User> userOpt = userRepository.findByUsername(username);
                 if (userOpt.isPresent()) {
-                    log.setUserId(userOpt.get().getId().intValue());
+                    log.setUser(userOpt.get());
                 } else {
                     Optional<User> emailOpt = userRepository.findByEmail(username);
-                    emailOpt.ifPresent(user -> log.setUserId(user.getId().intValue()));
+                    emailOpt.ifPresent(user -> log.setUser(user));
                 }
             }
         } catch (Exception e) {
@@ -53,7 +53,9 @@ public class AuditService {
     // Kept for backward compatibility with other services if needed
     public AuditLog logAction(Integer userId, String action, String resource, String metadata) {
         AuditLog log = new AuditLog();
-        log.setUserId(userId);
+        if (userId != null) {
+            log.setUser(userRepository.getReferenceById(Long.valueOf(userId)));
+        }
         log.setAction(action);
         log.setResource(resource);
         log.setTimestamp(LocalDateTime.now());

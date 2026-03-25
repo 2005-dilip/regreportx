@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface RawRecordRepository extends JpaRepository<RawRecord, Integer> {
-    List<RawRecord> findByBatchId(Integer batchId);
+    List<RawRecord> findByBatch_BatchId(Integer batchId);
 }

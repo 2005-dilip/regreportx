@@ -1,15 +1,23 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "CorrectionLog")
+@Data
+@NoArgsConstructor
 public class CorrectionLog {
 
     @Id
@@ -17,11 +25,13 @@ public class CorrectionLog {
     @Column(name = "CorrectionID")
     private Integer correctionId;
 
-    @Column(name = "ExceptionID")
-    private Integer exceptionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ExceptionID")
+    private ExceptionRecord exceptionRecord;
 
-    @Column(name = "DataQualityIssueID")
-    private Integer dataQualityIssueId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DataQualityIssueID")
+    private DataQualityIssue dataQualityIssue;
 
     @Column(name = "OldValue")
     private String oldValue;
@@ -29,68 +39,10 @@ public class CorrectionLog {
     @Column(name = "NewValue")
     private String newValue;
 
-    @Column(name = "CorrectedBy")
-    private Integer correctedBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CorrectedBy")
+    private User correctedByUser;
 
     @Column(name = "CorrectedDate")
     private LocalDateTime correctedDate;
-
-    public CorrectionLog() {
-    }
-
-    public Integer getCorrectionId() {
-        return correctionId;
-    }
-
-    public void setCorrectionId(Integer correctionId) {
-        this.correctionId = correctionId;
-    }
-
-    public Integer getExceptionId() {
-        return exceptionId;
-    }
-
-    public void setExceptionId(Integer exceptionId) {
-        this.exceptionId = exceptionId;
-    }
-
-    public Integer getDataQualityIssueId() {
-        return dataQualityIssueId;
-    }
-
-    public void setDataQualityIssueId(Integer dataQualityIssueId) {
-        this.dataQualityIssueId = dataQualityIssueId;
-    }
-
-    public String getOldValue() {
-        return oldValue;
-    }
-
-    public void setOldValue(String oldValue) {
-        this.oldValue = oldValue;
-    }
-
-    public String getNewValue() {
-        return newValue;
-    }
-
-    public void setNewValue(String newValue) {
-        this.newValue = newValue;
-    }
-
-    public Integer getCorrectedBy() {
-        return correctedBy;
-    }
-
-    public void setCorrectedBy(Integer correctedBy) {
-        this.correctedBy = correctedBy;
-    }
-
-    public LocalDateTime getCorrectedDate() {
-        return correctedDate;
-    }
-
-    public void setCorrectedDate(LocalDateTime correctedDate) {
-        this.correctedDate = correctedDate;
-    }
 }

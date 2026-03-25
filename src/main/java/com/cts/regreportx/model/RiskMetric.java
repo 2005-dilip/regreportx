@@ -1,16 +1,24 @@
 package com.cts.regreportx.model;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "RiskMetric")
+@Data
+@NoArgsConstructor
 public class RiskMetric {
 
     @Id
@@ -18,8 +26,9 @@ public class RiskMetric {
     @Column(name = "MetricID")
     private Integer metricId;
 
-    @Column(name = "ReportID")
-    private Integer reportId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ReportID")
+    private RegReport report;
 
     @Column(name = "MetricName")
     private String metricName;
@@ -29,47 +38,4 @@ public class RiskMetric {
 
     @Column(name = "CalculationDate")
     private LocalDateTime calculationDate;
-
-    public RiskMetric() {
-    }
-
-    public Integer getMetricId() {
-        return metricId;
-    }
-
-    public void setMetricId(Integer metricId) {
-        this.metricId = metricId;
-    }
-
-    public Integer getReportId() {
-        return reportId;
-    }
-
-    public void setReportId(Integer reportId) {
-        this.reportId = reportId;
-    }
-
-    public String getMetricName() {
-        return metricName;
-    }
-
-    public void setMetricName(String metricName) {
-        this.metricName = metricName;
-    }
-
-    public BigDecimal getMetricValue() {
-        return metricValue;
-    }
-
-    public void setMetricValue(BigDecimal metricValue) {
-        this.metricValue = metricValue;
-    }
-
-    public LocalDateTime getCalculationDate() {
-        return calculationDate;
-    }
-
-    public void setCalculationDate(LocalDateTime calculationDate) {
-        this.calculationDate = calculationDate;
-    }
 }

@@ -5,6 +5,7 @@ import com.cts.regreportx.model.*;
 import com.cts.regreportx.repository.NotificationRepository;
 import com.cts.regreportx.repository.RegReportRepository;
 import com.cts.regreportx.repository.RiskMetricRepository;
+import com.cts.regreportx.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class RiskCalculationService {
     private final DynamicRiskEvaluator riskEvaluator;
     private final TemplateService templateService;
     private final RegReportRepository reportRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public RiskCalculationService(SourceDataService sourceDataService,
@@ -35,7 +37,8 @@ public class RiskCalculationService {
                                   AuditService auditService,
                                   DynamicRiskEvaluator riskEvaluator,
                                   TemplateService templateService,
-                                  RegReportRepository reportRepository) {
+                                  RegReportRepository reportRepository,
+                                  UserRepository userRepository) {
         this.sourceDataService = sourceDataService;
         this.riskMetricRepository = riskMetricRepository;
         this.notificationRepository = notificationRepository;
@@ -43,14 +46,20 @@ public class RiskCalculationService {
         this.riskEvaluator = riskEvaluator;
         this.templateService = templateService;
         this.reportRepository = reportRepository;
+        this.userRepository = userRepository;
     }
 
     public List<RiskMetric> calculateMetrics(Integer reportId) {
         List<RiskMetric> metrics = new ArrayList<>();
-        riskMetricRepository.deleteByReportId(reportId);
+        riskMetricRepository.deleteByReport_ReportId(reportId);
 
         RegReport report = reportRepository.findById(reportId).orElseThrow(() -> new RuntimeException("Report Not Found"));
-        List<TemplateField> fields = templateService.getFieldsByTemplateId(report.getTemplateId());
+        
+        if (!"DRAFT".equalsIgnoreCase(report.getStatus())) {
+            throw new RuntimeException("Risk metrics can only be calculated for reports in DRAFT status.");
+        }
+        
+        List<TemplateField> fields = templateService.getFieldsByTemplateId(report.getTemplate().getTemplateId());
 
         if (fields.isEmpty()) {
             auditService.logAction(1, "CALCULATE_RISK_METRICS_SKIPPED", "ReportID: " + reportId, "No template fields found to calculate.");
@@ -116,7 +125,7 @@ public class RiskCalculationService {
             context.put(field.getFieldName(), calculatedValue);
 
             // Save
-            metrics.add(createMetric(reportId, field.getFieldName(), calculatedValue));
+            metrics.add(createMetric(report, field.getFieldName(), calculatedValue));
         }
 
         // 3. Dynamic Alerts / Threshold Checks (Based on what reached the context map)
@@ -146,7 +155,7 @@ public class RiskCalculationService {
 
     private void generateRiskAlert(String message) {
         Notification notification = new Notification();
-        notification.setUserId(1); 
+        notification.setUser(userRepository.getReferenceById(1L)); 
         notification.setMessage(message);
         notification.setCategory("Risk");
         notification.setStatus("UNREAD");
@@ -154,9 +163,9 @@ public class RiskCalculationService {
         notificationRepository.save(notification);
     }
 
-    private RiskMetric createMetric(Integer reportId, String name, BigDecimal value) {
+    private RiskMetric createMetric(RegReport report, String name, BigDecimal value) {
         RiskMetric metric = new RiskMetric();
-        metric.setReportId(reportId);
+        metric.setReport(report);
         metric.setMetricName(name);
         metric.setMetricValue(value);
         metric.setCalculationDate(LocalDateTime.now());

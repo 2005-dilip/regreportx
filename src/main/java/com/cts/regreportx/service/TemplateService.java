@@ -53,12 +53,12 @@ public class TemplateService {
     // --- TemplateField Operations ---
 
     public TemplateField addFieldToTemplate(Integer templateId, TemplateField field) {
-        field.setTemplateId(templateId);
+        field.setTemplate(templateRepository.getReferenceById(templateId));
         return fieldRepository.save(field);
     }
 
     public List<TemplateField> getFieldsByTemplateId(Integer templateId) {
-        return fieldRepository.findByTemplateId(templateId);
+        return fieldRepository.findByTemplate_TemplateId(templateId);
     }
 
     public TemplateField updateField(Integer fieldId, TemplateField fieldDetails) {

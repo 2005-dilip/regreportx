@@ -74,7 +74,7 @@ public class DataQualityService {
             
             if (rawRecordOpt.isPresent()) {
                 RawRecord rawRecord = rawRecordOpt.get();
-                ValidationRule rule = validationRuleRepository.findById(issue.getRuleId()).orElse(null);
+                ValidationRule rule = issue.getRule();
                 
                 if (rule != null) {
                     // Extract field name from rule (e.g., "LoanAmount > 0" -> "LoanAmount")
@@ -117,7 +117,7 @@ public class DataQualityService {
 
         // 3. Create CorrectionLog
         CorrectionLog log = new CorrectionLog();
-        log.setDataQualityIssueId(issue.getIssueId());
+        log.setDataQualityIssue(issue);
         log.setOldValue(issue.getMessage());
         log.setNewValue("Corrected to " + request.getCorrectedValue() + " | Reason: " + request.getJustification());
         log.setCorrectedDate(LocalDateTime.now());
@@ -127,7 +127,7 @@ public class DataQualityService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
                 Optional<User> userOpt = userRepository.findByUsername(auth.getName());
-                userOpt.ifPresent(user -> log.setCorrectedBy(user.getId().intValue()));
+                userOpt.ifPresent(user -> log.setCorrectedByUser(user));
             }
         } catch (Exception e) {}
         
