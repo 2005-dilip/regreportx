@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/data-quality")
-@CrossOrigin(origins = "*")
 @PreAuthorize("hasAnyRole('COMPLIANCE_ANALYST', 'REGTECH_ADMIN')")
 public class DataQualityController {
 

@@ -16,7 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/admin/users")
-@CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('REGTECH_ADMIN')")
 public class UserController {
 

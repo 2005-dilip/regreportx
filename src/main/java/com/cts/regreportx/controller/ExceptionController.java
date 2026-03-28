@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/exceptions")
-@CrossOrigin(origins = "*")
 @PreAuthorize("hasAnyRole('COMPLIANCE_ANALYST', 'REGTECH_ADMIN')")
 public class ExceptionController {
 
