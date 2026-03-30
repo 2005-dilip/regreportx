@@ -34,7 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 username = jwtService.extractUsername(token);
             } catch (Exception e) {
-                // Ignore token parsing error, let the security context remain null -> unauthorized
             }
         }
 

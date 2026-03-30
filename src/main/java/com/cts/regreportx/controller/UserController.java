@@ -1,8 +1,9 @@
 package com.cts.regreportx.controller;
 
+import com.cts.regreportx.dto.UserDTO;
 import com.cts.regreportx.model.User;
 import com.cts.regreportx.repository.UserRepository;
-import org.mindrot.jbcrypt.BCrypt;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -21,20 +23,24 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        return ResponseEntity.ok(userRepository.findAll().stream()
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .collect(Collectors.toList()));
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody User request) {
+    public ResponseEntity<?> createUser(@RequestBody UserDTO request) {
         if (request.getEmail() == null || request.getPassword() == null || request.getRole() == null) {
             return ResponseEntity.badRequest().body("Missing required fields");
         }
@@ -60,7 +66,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User request) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDTO request) {
         Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             return ResponseEntity.notFound().build();

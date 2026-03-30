@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 @Service
 public class JwtService {
 
-    // A 256-bit secret key, base64 encoded, injected from properties
     @Value("${jwt.secret}")
     private String secret;
 

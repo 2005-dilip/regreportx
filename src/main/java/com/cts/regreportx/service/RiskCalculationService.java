@@ -68,13 +68,11 @@ public class RiskCalculationService {
             return metrics;
         }
 
-        // Fetch Data
         List<Loan> loans = sourceDataService.getAllLoans();
         List<Deposit> deposits = sourceDataService.getAllDeposits();
         List<TreasuryTrade> treasuryTrades = sourceDataService.getAllTreasuryTrades();
         List<GeneralLedger> generalLedgers = sourceDataService.getAllGeneralLedgers();
 
-        // 1. Build Base Aggregations Context
         Map<String, BigDecimal> context = new HashMap<>();
 
         BigDecimal totalLoans = BigDecimal.ZERO;
@@ -145,23 +143,18 @@ public class RiskCalculationService {
         }
         context.put("MAX(Customer_Total_Load)", maxExposure);
 
-        // 2. Evaluate Dynamic Template Fields
         for (TemplateField field : fields) {
             String formula = field.getMappingExpression();
             if (formula == null || formula.isEmpty())
                 continue;
 
-            // Evaluate
             BigDecimal calculatedValue = riskEvaluator.evaluateFormula(formula, context);
 
-            // Add to Context (so sequential formulas can chain off previous results)
             context.put(field.getFieldName(), calculatedValue);
 
-            // Save
             metrics.add(createMetric(report, field.getFieldName(), calculatedValue));
         }
 
-        // 3. Dynamic Alerts / Threshold Checks (Based on what reached the context map)
         if (context.containsKey("CRAR") && context.get("CRAR").compareTo(new BigDecimal("9")) < 0) {
             generateRiskAlert("Capital breach: CRAR is below 9% threshold (" + context.get("CRAR") + "%) for Report ID "
                     + reportId);

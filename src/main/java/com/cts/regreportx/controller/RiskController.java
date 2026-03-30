@@ -1,7 +1,9 @@
 package com.cts.regreportx.controller;
 
+import com.cts.regreportx.dto.RiskMetricDTO;
 import com.cts.regreportx.model.RiskMetric;
 import com.cts.regreportx.service.RiskCalculationService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,15 +21,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class RiskController {
 
     private final RiskCalculationService riskCalculationService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public RiskController(RiskCalculationService riskCalculationService) {
+    public RiskController(RiskCalculationService riskCalculationService, ModelMapper modelMapper) {
         this.riskCalculationService = riskCalculationService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/metrics")
-    public ResponseEntity<List<RiskMetric>> getMetrics() {
-        return ResponseEntity.ok(riskCalculationService.getAllMetrics());
+    public ResponseEntity<List<RiskMetricDTO>> getMetrics() {
+        List<RiskMetric> metrics = riskCalculationService.getAllMetrics();
+        List<RiskMetricDTO> dtos = metrics.stream()
+                .map(m -> modelMapper.map(m, RiskMetricDTO.class))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @PostMapping("/calculate/{reportId}")

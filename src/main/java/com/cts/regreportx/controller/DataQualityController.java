@@ -1,14 +1,17 @@
 package com.cts.regreportx.controller;
 
+import com.cts.regreportx.dto.DataQualityIssueDTO;
 import com.cts.regreportx.dto.DataQualityResolveRequest;
 import com.cts.regreportx.model.DataQualityIssue;
 import com.cts.regreportx.service.DataQualityService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -18,16 +21,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class DataQualityController {
 
     private final DataQualityService dataQualityService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public DataQualityController(DataQualityService dataQualityService) {
+    public DataQualityController(DataQualityService dataQualityService, ModelMapper modelMapper) {
         this.dataQualityService = dataQualityService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/issues")
-    public ResponseEntity<List<DataQualityIssue>> getOpenIssues() {
+    public ResponseEntity<List<DataQualityIssueDTO>> getOpenIssues() {
         List<DataQualityIssue> issues = dataQualityService.getOpenIssues();
-        return ResponseEntity.ok(issues);
+        List<DataQualityIssueDTO> dtos = issues.stream()
+                .map(issue -> modelMapper.map(issue, DataQualityIssueDTO.class))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @PutMapping("/issues/{id}/resolve")

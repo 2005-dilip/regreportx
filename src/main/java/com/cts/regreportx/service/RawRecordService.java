@@ -42,8 +42,6 @@ public class RawRecordService {
         int recordsInserted = 0;
 
         try {
-            // Determine which dataset to load based on source ID
-            // Assuming 1=Loan, 2=Deposit, 3=Treasury, 4=GL from initDataSources order
             if (sourceId == 1) {
                 List<Loan> loans = sourceDataService.getAllLoans();
                 for (Loan loan : loans) {
@@ -85,8 +83,6 @@ public class RawRecordService {
     }
 
     public List<RawRecord> getRecordsByBatch(Integer batchId) {
-        // Find all records matching this batch. We need a custom query method in repo.
-        // Assuming we will add findByBatchId to repository.
         return rawRecordRepository.findByBatch_BatchId(batchId);
     }
 }

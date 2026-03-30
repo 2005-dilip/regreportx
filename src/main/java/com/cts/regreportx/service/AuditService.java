@@ -44,13 +44,11 @@ public class AuditService {
                 }
             }
         } catch (Exception e) {
-            // If security context is unavailable (e.g. system startup jobs), fail gracefully
         }
 
         return auditLogRepository.save(log);
     }
 
-    // Kept for backward compatibility with other services if needed
     public AuditLog logAction(Integer userId, String action, String resource, String metadata) {
         AuditLog log = new AuditLog();
         if (userId != null) {

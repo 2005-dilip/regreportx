@@ -22,7 +22,6 @@ public class TemplateService {
         this.fieldRepository = fieldRepository;
     }
 
-    // --- RegTemplate Operations ---
 
     public RegTemplate createTemplate(RegTemplate template) {
         return templateRepository.save(template);
@@ -50,7 +49,6 @@ public class TemplateService {
         templateRepository.deleteById(id);
     }
 
-    // --- TemplateField Operations ---
 
     public TemplateField addFieldToTemplate(Integer templateId, TemplateField field) {
         field.setTemplate(templateRepository.getReferenceById(templateId));

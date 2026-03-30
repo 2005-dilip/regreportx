@@ -69,7 +69,6 @@ public class ReportingService {
     }
 
     public RegReport generateReport(Integer templateId, String period) {
-        // 1. Create Report
         RegReport report = new RegReport();
         report.setTemplate(regTemplateRepository.getReferenceById(templateId));
         report.setPeriod(period);
@@ -77,7 +76,6 @@ public class ReportingService {
         report.setStatus("DRAFT");
         report = reportRepository.save(report);
 
-        // 2. Track Workflow Draft Stage
         FilingWorkflow workflow = new FilingWorkflow();
         workflow.setReport(report);
         workflow.setStepName("DRAFT");
@@ -86,8 +84,6 @@ public class ReportingService {
         workflow.setStatus("COMPLETED");
         workflowRepository.save(workflow);
 
-        // 3. Risk calculations are now manually triggered instead of automatically on
-        // draft creation.
 
         auditService.logAction(1, "GENERATE_REPORT", "TemplateID: " + templateId,
                 "Report generated ID: " + report.getReportId());

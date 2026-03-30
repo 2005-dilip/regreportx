@@ -31,7 +31,6 @@ public class RuleInitializer implements CommandLineRunner {
             rule = new ValidationRule();
             rule.setName(name);
         }
-        // Update values even if it already exists so we can fix the old "ERROR" severities
         rule.setRuleExpression(expression);
         rule.setSeverity(severity);
         rule.setStatus(status);

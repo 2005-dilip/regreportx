@@ -67,7 +67,6 @@ public class DataQualityService {
 
         String finalPayloadJson = null;
 
-        // 1. Update RawRecord Table
         try {
             Integer rawRecordId = Integer.parseInt(issue.getRecordId());
             Optional<RawRecord> rawRecordOpt = rawRecordRepository.findById(rawRecordId);
@@ -77,13 +76,11 @@ public class DataQualityService {
                 ValidationRule rule = issue.getRule();
                 
                 if (rule != null) {
-                    // Extract field name from rule (e.g., "LoanAmount > 0" -> "LoanAmount")
                     String fieldName = rule.getRuleExpression().split(" ")[0];
                     String camelAttr = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
 
                     ObjectNode jsonNode = (ObjectNode) objectMapper.readTree(rawRecord.getPayloadJson());
                     
-                    // Update whichever casing exists in the JSON payload
                     String cleanValue = request.getCorrectedValue() != null ? request.getCorrectedValue().trim() : "";
                     try {
                         java.math.BigDecimal numVal = new java.math.BigDecimal(cleanValue);
@@ -107,22 +104,17 @@ public class DataQualityService {
             }
         } catch (Exception e) {
             System.err.println("Failed to patch RawRecord: " + e.getMessage());
-            // Proceed to mark resolved even if raw patching fails to avoid strict deadlocks, 
-            // but log the error appropriately.
         }
 
-        // 2. Mark issue as resolved
         issue.setStatus("Resolved");
         DataQualityIssue savedIssue = dataQualityIssueRepository.save(issue);
 
-        // 3. Create CorrectionLog
         CorrectionLog log = new CorrectionLog();
         log.setDataQualityIssue(issue);
         log.setOldValue(issue.getMessage());
         log.setNewValue("Corrected to " + request.getCorrectedValue() + " | Reason: " + request.getJustification());
         log.setCorrectedDate(LocalDateTime.now());
         
-        // Use JWT authentication if available instead of hardcoding Admin
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
@@ -133,7 +125,6 @@ public class DataQualityService {
         
         correctionLogRepository.save(log);
 
-        // 4. Log to AuditLog
         auditService.logAction("RESOLVED_DATA_QUALITY_ISSUE", "DataQualityIssue ID: " + issueId);
 
         java.util.Map<String, Object> responseMap = new java.util.HashMap<>();

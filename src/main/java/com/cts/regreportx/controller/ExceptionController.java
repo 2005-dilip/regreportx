@@ -1,14 +1,17 @@
 package com.cts.regreportx.controller;
 
+import com.cts.regreportx.dto.ExceptionRecordDTO;
 import com.cts.regreportx.dto.ExceptionResolveRequest;
 import com.cts.regreportx.model.ExceptionRecord;
 import com.cts.regreportx.service.ReportingService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -18,15 +21,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class ExceptionController {
 
     private final ReportingService reportingService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public ExceptionController(ReportingService reportingService) {
+    public ExceptionController(ReportingService reportingService, ModelMapper modelMapper) {
         this.reportingService = reportingService;
+        this.modelMapper = modelMapper;
     }
 
     @GetMapping("/open")
-    public ResponseEntity<List<ExceptionRecord>> getOpenExceptions() {
-        return ResponseEntity.ok(reportingService.getOpenExceptions());
+    public ResponseEntity<List<ExceptionRecordDTO>> getOpenExceptions() {
+        List<ExceptionRecord> records = reportingService.getOpenExceptions();
+        List<ExceptionRecordDTO> dtos = records.stream()
+                .map(r -> modelMapper.map(r, ExceptionRecordDTO.class))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @PutMapping("/{id}/resolve")
@@ -35,7 +44,7 @@ public class ExceptionController {
             ExceptionRecord resolved = reportingService.resolveException(id, request);
             return ResponseEntity.ok(Map.of(
                     "message", "Exception resolved successfully and CorrectionLog generated.",
-                    "exception", resolved
+                    "exception", modelMapper.map(resolved, ExceptionRecordDTO.class)
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -46,10 +55,13 @@ public class ExceptionController {
     public ResponseEntity<Map<String, Object>> generateExceptions(@PathVariable Integer reportId) {
         try {
             List<ExceptionRecord> generated = reportingService.generateExceptionsForReport(reportId);
+            List<ExceptionRecordDTO> dtos = generated.stream()
+                    .map(r -> modelMapper.map(r, ExceptionRecordDTO.class))
+                    .collect(Collectors.toList());
             return ResponseEntity.ok(Map.of(
                     "message", "Exceptions generated successfully for report ID " + reportId,
-                    "count", generated.size(),
-                    "exceptions", generated
+                    "count", dtos.size(),
+                    "exceptions", dtos
             ));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

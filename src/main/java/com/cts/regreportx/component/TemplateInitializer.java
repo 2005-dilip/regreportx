@@ -24,7 +24,6 @@ public class TemplateInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Seed RCA3 (Capital Adequacy Return)
         RegTemplate rca3 = insertTemplateIfNotExists("RCA3", "Capital Adequacy Return (Calculates Basel III Capital Constraints)", "Quarterly", "Active");
         if (rca3 != null) {
             insertFieldIfNotExists(rca3.getTemplateId(), "Total_Loans", "DECIMAL", "SUM(loanAmount) FROM Loan", true);
@@ -34,14 +33,12 @@ public class TemplateInitializer implements CommandLineRunner {
             insertFieldIfNotExists(rca3.getTemplateId(), "CRAR", "DECIMAL", "(|Net_GL_Balance| / RWA) * 100", true);
         }
 
-        // Seed IRS (Interest Rate Sensitivity)
         RegTemplate irs = insertTemplateIfNotExists("IRS", "Interest Rate Sensitivity", "Quarterly", "Active");
         if (irs != null) {
             insertFieldIfNotExists(irs.getTemplateId(), "NetAssets", "DECIMAL", "SUM(loanAmount) + SUM(treasuryTradeNotional)", true);
             insertFieldIfNotExists(irs.getTemplateId(), "NetLiabilities", "DECIMAL", "SUM(depositAmount)", true);
         }
 
-        // Seed RLS (Return on Liquidity Support)
         RegTemplate rls = insertTemplateIfNotExists("RLS", "Return on Liquidity Support", "Monthly", "Active");
         if (rls != null) {
             insertFieldIfNotExists(rls.getTemplateId(), "Treasury_Exposure", "DECIMAL", "SUM(notional) FROM TreasuryTrade", true);
@@ -50,7 +47,6 @@ public class TemplateInitializer implements CommandLineRunner {
             insertFieldIfNotExists(rls.getTemplateId(), "Liquidity_Buffer", "DECIMAL", "Treasury_Exposure - Expected_Withdrawal", false);
         }
 
-        // Seed ALE1 (Large Exposures Return)
         RegTemplate ale1 = insertTemplateIfNotExists("ALE1", "Large Exposures Return", "Quarterly", "Active");
         if (ale1 != null) {
             insertFieldIfNotExists(ale1.getTemplateId(), "Exposure_Concentration", "DECIMAL", "MAX(Customer_Total_Load) / |Net_GL_Balance| * 100", true);

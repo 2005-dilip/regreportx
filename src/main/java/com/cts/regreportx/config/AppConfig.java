@@ -15,7 +15,6 @@ public class AppConfig {
     public CommandLineRunner initDatabase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             if (userRepository.count() == 0) {
-                // 1. Dilip
                 User admin = new User();
                 admin.setName("DILIP");
                 admin.setUsername("Dilipkumar11");
@@ -26,7 +25,6 @@ public class AppConfig {
                 admin.setCreatedAt(java.time.LocalDateTime.now());
                 userRepository.save(admin);
 
-                // 2. Kishore
                 User kishore = new User();
                 kishore.setName("Kishore");
                 kishore.setUsername("Kishore");
@@ -37,7 +35,6 @@ public class AppConfig {
                 kishore.setCreatedAt(java.time.LocalDateTime.now());
                 userRepository.save(kishore);
 
-                // 3. Nandhana
                 User nandhana = new User();
                 nandhana.setName("Nandhana");
                 nandhana.setUsername("Nandhana");
@@ -48,7 +45,6 @@ public class AppConfig {
                 nandhana.setCreatedAt(java.time.LocalDateTime.now());
                 userRepository.save(nandhana);
 
-                // 4. Niranjana
                 User niranjana = new User();
                 niranjana.setName("Niranjana");
                 niranjana.setUsername("Niranjana");
@@ -59,7 +55,6 @@ public class AppConfig {
                 niranjana.setCreatedAt(java.time.LocalDateTime.now());
                 userRepository.save(niranjana);
 
-                // 5. Asmath
                 User asmath = new User();
                 asmath.setName("Asmath");
                 asmath.setUsername("Asmath");
