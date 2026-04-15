@@ -1,0 +1,130 @@
+<div class="home-container">
+  <!-- Animated Background -->
+  <div class="bg-effects">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="home-nav">
+    <div class="nav-brand">
+      <div class="logo-icon">
+        <span class="material-icons">assessment</span>
+      </div>
+      <span class="brand-text">RegReportX</span>
+    </div>
+    <div class="nav-links">
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/admin" class="nav-link" id="nav-admin-link">
+          <span class="material-icons">admin_panel_settings</span>
+          Admin Panel
+        </a>
+      } @else {
+        <a routerLink="/login" class="nav-link nav-link-primary" id="nav-login-link">
+          <span class="material-icons">login</span>
+          Sign In
+        </a>
+      }
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero-section">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Enterprise Regulatory Compliance Platform
+    </div>
+    <h1 class="hero-title">
+      Regulatory Reporting
+      <span class="gradient-text">Made Effortless</span>
+    </h1>
+    <p class="hero-subtitle">
+      Streamline compliance workflows, automate template management, and gain real-time insights
+      into your regulatory reporting pipeline with RegReportX.
+    </p>
+    <div class="hero-actions">
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/admin" class="btn btn-primary" id="hero-admin-btn">
+          <span class="material-icons">dashboard</span>
+          Go to Dashboard
+        </a>
+      } @else {
+        <a routerLink="/login" class="btn btn-primary" id="hero-login-btn">
+          <span class="material-icons">rocket_launch</span>
+          Get Started
+        </a>
+      }
+      <a href="#features" class="btn btn-outline" id="hero-learn-btn">
+        <span class="material-icons">info</span>
+        Learn More
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="hero-stats" id="hero-stats">
+      <div class="stat-item">
+        <span class="stat-value">99.9%</span>
+        <span class="stat-label">Compliance Rate</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">50+</span>
+        <span class="stat-label">Regulation Templates</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">10x</span>
+        <span class="stat-label">Faster Reporting</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <h2 class="section-title">Powerful Features</h2>
+    <p class="section-subtitle">Everything you need for regulatory compliance management</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <span class="material-icons">description</span>
+        </div>
+        <h3>Template Management</h3>
+        <p>Create, edit, and manage regulatory templates with dynamic field configurations and formula support.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-accent">
+          <span class="material-icons">fact_check</span>
+        </div>
+        <h3>Report Approval</h3>
+        <p>Streamlined approval workflows with audit trails and multi-level review processes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-success">
+          <span class="material-icons">bar_chart</span>
+        </div>
+        <h3>Data Visualization</h3>
+        <p>Interactive charts and dashboards for real-time insights into template usage and field distributions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon icon-warning">
+          <span class="material-icons">security</span>
+        </div>
+        <h3>Secure Access</h3>
+        <p>JWT-based authentication with role-based access controls for enterprise-grade security.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="home-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="material-icons">assessment</span>
+        <span>RegReportX</span>
+      </div>
+      <p class="footer-text">&copy; 2026 RegReportX. Built for Cognizant Technology Solutions.</p>
+    </div>
+  </footer>
+</div>
