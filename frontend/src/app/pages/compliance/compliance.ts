@@ -22,7 +22,7 @@ import Chart from 'chart.js/auto';
 })
 export class ComplianceComponent implements OnInit {
   username = '';
-  activeTab: 'validation' | 'quality' | 'submit' = 'validation';
+  activeTab: 'validation' | 'quality' | 'exceptions' | 'submit' = 'validation';
   Math = Math;
 
 
@@ -32,12 +32,32 @@ export class ComplianceComponent implements OnInit {
   openIssues: DataQualityIssue[] = [];
   openExceptions: ExceptionRecord[] = [];
 
-  // Pagination
-  currentPage = 1;
-  pageSize = 5;
+  // Pagination - Validation
+  valPage = 1;
+  valPageSize = 5;
+
+  // Pagination - Quality
+  qualPage = 1;
+  qualPageSize = 5;
+
+  // Pagination - Exceptions
+  excPage = 1;
+  excPageSize = 5;
+
+  // Pagination - Submit
+  repPage = 1;
+  repPageSize = 5;
+
   chart: any;
   messageChart: any;
   statusChart: any;
+
+  qualityRuleChart: any;
+  qualityBatchChart: any;
+  qualitySeverityChart: any;
+  
+  exceptionSeverityChart: any;
+  exceptionReportChart: any;
 
   // UI State
   loadingCount = 0;
@@ -88,20 +108,53 @@ export class ComplianceComponent implements OnInit {
   }
 
   get paginatedIssues(): DataQualityIssue[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.issues.slice(start, start + this.pageSize);
+    const start = (this.valPage - 1) * this.valPageSize;
+    return this.issues.slice(start, start + this.valPageSize);
   }
 
-  get totalPages(): number {
-    return Math.ceil(this.issues.length / this.pageSize) || 1;
+  get valTotalPages(): number {
+    return Math.ceil(this.issues.length / this.valPageSize) || 1;
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) this.currentPage++;
+  get paginatedOpenIssues(): DataQualityIssue[] {
+    const start = (this.qualPage - 1) * this.qualPageSize;
+    return this.openIssues.slice(start, start + this.qualPageSize);
   }
 
-  prevPage(): void {
-    if (this.currentPage > 1) this.currentPage--;
+  get qualTotalPages(): number {
+    return Math.ceil(this.openIssues.length / this.qualPageSize) || 1;
+  }
+
+  get paginatedExceptions(): ExceptionRecord[] {
+    const start = (this.excPage - 1) * this.excPageSize;
+    return this.openExceptions.slice(start, start + this.excPageSize);
+  }
+
+  get excTotalPages(): number {
+    return Math.ceil(this.openExceptions.length / this.excPageSize) || 1;
+  }
+
+  get paginatedReports(): RegReport[] {
+    const start = (this.repPage - 1) * this.repPageSize;
+    return this.draftReports.slice(start, start + this.repPageSize);
+  }
+
+  get repTotalPages(): number {
+    return Math.ceil(this.draftReports.length / this.repPageSize) || 1;
+  }
+
+  nextPage(type: 'val' | 'qual' | 'exc' | 'rep'): void {
+    if (type === 'val' && this.valPage < this.valTotalPages) this.valPage++;
+    if (type === 'qual' && this.qualPage < this.qualTotalPages) this.qualPage++;
+    if (type === 'exc' && this.excPage < this.excTotalPages) this.excPage++;
+    if (type === 'rep' && this.repPage < this.repTotalPages) this.repPage++;
+  }
+
+  prevPage(type: 'val' | 'qual' | 'exc' | 'rep'): void {
+    if (type === 'val' && this.valPage > 1) this.valPage--;
+    if (type === 'qual' && this.qualPage > 1) this.qualPage--;
+    if (type === 'exc' && this.excPage > 1) this.excPage--;
+    if (type === 'rep' && this.repPage > 1) this.repPage--;
   }
 
   updateChart(): void {
@@ -256,10 +309,159 @@ export class ComplianceComponent implements OnInit {
     });
   }
 
-  switchTab(tab: 'validation' | 'quality' | 'submit'): void {
+  updateQualityCharts(): void {
+    const ruleCtx = document.getElementById('qualityRuleChart') as HTMLCanvasElement;
+    if (ruleCtx) {
+      if (this.qualityRuleChart) this.qualityRuleChart.destroy();
+      const ruleCounts: Record<string, number> = {};
+      this.openIssues.forEach(i => {
+        const rName = i.message ? (i.message.length > 30 ? i.message.substring(0, 30) + '...' : i.message) : 'Unknown Issue';
+        ruleCounts[rName] = (ruleCounts[rName] || 0) + 1;
+      });
+      const sortedRules = Object.entries(ruleCounts).sort((a,b) => b[1] - a[1]).slice(0, 5); // display top 5
+      const labels = sortedRules.map(x => x[0]);
+      const data = sortedRules.map(x => x[1]);
+
+      this.qualityRuleChart = new Chart(ruleCtx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Issue Volume',
+            data: data,
+            backgroundColor: ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6'],
+            borderRadius: 4
+          }]
+        },
+        options: { 
+          indexAxis: 'y', 
+          responsive: true, 
+          plugins: { legend: { display: false } }, 
+          scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { grid: { display: false } } } 
+        }
+      });
+    }
+
+    const sevCtx = document.getElementById('qualitySeverityChart') as HTMLCanvasElement;
+    if (sevCtx) {
+      if (this.qualitySeverityChart) this.qualitySeverityChart.destroy();
+      const sevCounts: Record<string, number> = {};
+      this.openIssues.forEach(i => {
+        let sev = (i.severity || 'UNKNOWN').toUpperCase();
+        sevCounts[sev] = (sevCounts[sev] || 0) + 1;
+      });
+      const labels = Object.keys(sevCounts);
+      const data = Object.values(sevCounts);
+      const palette: Record<string, string> = { 
+        'CRITICAL': 'rgba(239, 68, 68, 0.85)', 
+        'ERROR': 'rgba(239, 68, 68, 0.85)', 
+        'HIGH': 'rgba(249, 115, 22, 0.85)', 
+        'WARNING': 'rgba(245, 158, 11, 0.85)', 
+        'MEDIUM': 'rgba(234, 179, 8, 0.85)', 
+        'LOW': 'rgba(59, 130, 246, 0.85)', 
+        'UNKNOWN': 'rgba(156, 163, 175, 0.85)' 
+      };
+      const colors = labels.map(l => palette[l] || 'rgba(156, 163, 175, 0.85)');
+      this.qualitySeverityChart = new Chart(sevCtx, {
+        type: 'polarArea',
+        data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 1, borderColor: '#fff' }] },
+        options: { responsive: true, plugins: { legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle' } } } }
+      });
+    }
+
+    const batchCtx = document.getElementById('qualityBatchChart') as HTMLCanvasElement;
+    if (batchCtx) {
+      if (this.qualityBatchChart) this.qualityBatchChart.destroy();
+      const batchCounts: Record<string, number> = {};
+      this.openIssues.forEach(i => {
+        const batch = i.batch?.batchId ? `Batch ${i.batch.batchId}` : 'Unknown';
+        batchCounts[batch] = (batchCounts[batch] || 0) + 1;
+      });
+      this.qualityBatchChart = new Chart(batchCtx, {
+        type: 'line',
+        data: {
+          labels: Object.keys(batchCounts),
+          datasets: [{
+            label: 'Issues Count',
+            data: Object.values(batchCounts),
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#2563eb',
+            pointRadius: 5
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      });
+    }
+  }
+
+  updateExceptionCharts(): void {
+    const fieldCtx = document.getElementById('exceptionFieldChart') as HTMLCanvasElement;
+    if (fieldCtx) {
+      if (this.exceptionSeverityChart) this.exceptionSeverityChart.destroy();
+      const fieldCounts: Record<string, number> = {};
+      this.openExceptions.forEach(e => {
+        const field = e.templateField?.fieldName || 'System Constraint';
+        fieldCounts[field] = (fieldCounts[field] || 0) + 1;
+      });
+      const labels = Object.keys(fieldCounts);
+      const data = Object.values(fieldCounts);
+      const dynamicColors = labels.map((_, i) => ['#0ea5e9', '#10b981', '#f59e0b', '#6366f1', '#ec4899', '#8b5cf6'][i % 6]);
+      this.exceptionSeverityChart = new Chart(fieldCtx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: dynamicColors,
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 4
+          }]
+        },
+        options: { 
+          responsive: true, 
+          cutout: '70%', 
+          plugins: { legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle' } } } 
+        }
+      });
+    }
+
+    const repCtx = document.getElementById('exceptionReportChart') as HTMLCanvasElement;
+    if (repCtx) {
+      if (this.exceptionReportChart) this.exceptionReportChart.destroy();
+      const repCounts: Record<string, number> = {};
+      this.openExceptions.forEach(e => {
+        const rep = e.report?.reportId ? `Rep #${e.report.reportId}` : 'Unknown';
+        repCounts[rep] = (repCounts[rep] || 0) + 1;
+      });
+      const labels = Object.keys(repCounts);
+      const data = Object.values(repCounts);
+      const dynamicColors = labels.map((_, i) => ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#3b82f6'][i % 6]);
+      this.exceptionReportChart = new Chart(repCtx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Exceptions Found',
+            data: data,
+            backgroundColor: dynamicColors,
+            borderRadius: 6
+          }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { grid: { display: false } } } }
+      });
+    }
+  }
+
+  switchTab(tab: 'validation' | 'quality' | 'exceptions' | 'submit'): void {
     this.activeTab = tab;
     if (tab === 'validation') this.loadValidationIssues();
     if (tab === 'quality') this.loadOpenIssues();
+    if (tab === 'exceptions') this.loadOpenExceptions();
     if (tab === 'submit') {
       this.loadDraftReports();
       this.loadOpenExceptions();
@@ -273,7 +475,7 @@ export class ComplianceComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         this.issues = data;
-        this.currentPage = 1;
+        this.valPage = 1;
         setTimeout(() => this.updateAllCharts());
       },
       error: () => {
@@ -289,7 +491,7 @@ export class ComplianceComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         this.issues = data;
-        this.currentPage = 1;
+        this.valPage = 1;
         setTimeout(() => this.updateAllCharts());
         this.showNotification('Validation run complete!', 'success');
       },
@@ -306,6 +508,8 @@ export class ComplianceComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         this.openIssues = data;
+        this.qualPage = 1;
+        setTimeout(() => this.updateQualityCharts());
       },
       error: () => {
         this.showNotification('Failed to load open issues', 'error');
@@ -320,6 +524,7 @@ export class ComplianceComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         this.draftReports = data.filter(r => r.status === 'DRAFT');
+        this.repPage = 1;
       },
       error: () => {
         this.showNotification('Failed to load draft reports', 'error');
@@ -334,6 +539,8 @@ export class ComplianceComponent implements OnInit {
     ).subscribe({
       next: (data) => {
         this.openExceptions = data;
+        this.excPage = 1;
+        setTimeout(() => this.updateExceptionCharts());
       },
       error: () => {
         this.showNotification('Failed to load open report exceptions', 'error');
@@ -398,6 +605,21 @@ export class ComplianceComponent implements OnInit {
       },
       error: () => {
         this.showNotification('Failed to submit report', 'error');
+      }
+    });
+  }
+
+  generateReportExceptions(reportId: number): void {
+    this.startLoading();
+    this.exceptionService.generateExceptions(reportId).pipe(
+      finalize(() => this.stopLoading())
+    ).subscribe({
+      next: (res) => {
+        this.showNotification(`Generated ${res.count} exceptions for report`, 'success');
+        this.loadOpenExceptions();
+      },
+      error: () => {
+        this.showNotification('Failed to generate exceptions', 'error');
       }
     });
   }

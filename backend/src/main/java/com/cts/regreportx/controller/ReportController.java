@@ -26,7 +26,7 @@ public class ReportController {
     }
 
     @PostMapping("/generate")
-    @PreAuthorize("hasAnyRole('REPORTING_OFFICER')")
+    @PreAuthorize("hasAnyRole('REPORTING_OFFICER','REGTECH_ADMIN')")
     public ResponseEntity<RegReportDTO> generateReport(
             @RequestParam(required = false, defaultValue = "1") Integer templateId,
             @RequestParam(required = false, defaultValue = "2026-Q1") String period) {

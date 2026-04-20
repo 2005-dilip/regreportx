@@ -18,4 +18,8 @@ export class ExceptionService {
   resolveException(id: number, request: ExceptionResolveRequest): Observable<any> {
     return this.http.put(`${this.API_URL}/${id}/resolve`, request);
   }
+
+  generateExceptions(reportId: number): Observable<any> {
+    return this.http.post(`${this.API_URL}/generate/${reportId}`, {});
+  }
 }
